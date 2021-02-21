@@ -1,0 +1,14 @@
+{
+    "name": "test app",
+    "version": "0.0.1",
+    "description": "app for test node.js server",
+    "dependencies": {
+        "express": "^4.17.1",
+        "pm2": "^4.5.4",
+        "socket.io": "^3.1.1",
+        "body-parser": "^1.19.0",
+        "mysql": "^2.18.1",
+        "mysql2": "^2.2.5",
+        "sanitize-html": "^1.18.2"
+    }
+}
