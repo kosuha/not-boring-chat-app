@@ -102,3 +102,13 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Google oauth
+config/google.json
+
+# DB
+lib/conn.js
+lib/sessionStoreConn.js
+
+# session
+config/session.json

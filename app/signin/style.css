@@ -8,6 +8,10 @@ body {
     justify-content: center;
 }
 
+a {
+    text-decoration: none;
+}
+
 #container {
     display: flex;
     flex-direction: column;
@@ -44,7 +48,7 @@ input:focus {
     outline: none;
 }
 
-#signInButton {
+#signInWithGoogle {
     background: #333;
     border: none;
     padding: 0 1rem;
@@ -53,14 +57,15 @@ input:focus {
     outline: none;
     color: #fff;
     height: 3rem;
+    line-height: 3rem;
     width: 15rem;
+    text-align: center;
 }
 
 @media (max-height: 399px) {
     #signInTitle {
         padding-bottom: 1rem;
     }
-
     #signInForm {
         margin-bottom: 1rem;
     }
