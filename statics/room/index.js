@@ -9,7 +9,6 @@ let roomNumber = '';
 let chatName = '';
 
 getUserData();
-socket.emit('joinRoom', roomNumber, chatName);
 
 // TODO: 비동기처리 문제해결필요.
 
@@ -59,4 +58,5 @@ async function getUserData() {
     let result = await response.json();
     roomNumber = result.room;
     chatName = result.chatName;
+    socket.emit('joinRoom', roomNumber, chatName);
 }
