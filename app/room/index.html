@@ -10,9 +10,12 @@
 </head>
 
 <body>
-    <script>
-        window.location.href = '/list';
-    </script>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="index.js"></script>
 </body>
 
 </html>
