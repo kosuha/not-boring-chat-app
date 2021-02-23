@@ -2,33 +2,44 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const connection = require('./lib/conn.js');
-const sessionStoreConnection = require('./lib/sessionStoreConn.js');
 const io = require('socket.io')(http);
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const googleCredentials = require('./config/google.json');
 const sessionData = require('./config/session.json');
-let userNameInChat = '';
+const bodyParser = require('body-parser');
 
-app.use(express.static('app'));
+let userChatName = '';
 
-const authenticateUser = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        next();
+app.use(express.static('statics'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+const authenticateUser = (request, response, next) => {
+    if (request.isAuthenticated()) {
+        const userData = request.session.passport.user;
+        connection.query(`SELECT * FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else if (Object.keys(rows).length >= 1) {
+                    request.session.passport.user.chatName = rows[0].chat_name;
+                    next();
+                } else {
+                    console.log('회원정보 없음!');
+                    response.redirect('/signup');
+                }
+            });
     } else {
-        res.status(301).redirect('/signin');
+        response.status(301).redirect('/signin');
     }
 };
-
-const sessionStore = new MySQLStore(sessionStoreConnection);
 
 app.use(session({
     secret: sessionData.data.secret,
     resave: false,
     saveUninitialized: true
-    // store: sessionStore
 }))
 
 // Passport setting 
@@ -48,7 +59,6 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost/auth/google/callback"
 },
     function (accessToken, refreshToken, profile, done) {
-        // console.log(profile.displayName, profile.id, profile.emails[0].value);
         const googleEmail = profile.emails[0].value;
         const googleID = profile.id;
         const userName = profile.displayName
@@ -58,7 +68,6 @@ passport.use(new GoogleStrategy({
             googleID: profile.id,
             googleEmail: profile.emails[0].value
         };
-        userNameInChat = userName;
         done(null, user);
     }
 ));
@@ -70,7 +79,6 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/signin' }),
     (request, response) => {
-        console.log('request.user?:', request.user);
         response.redirect('/');
     }
 );
@@ -79,48 +87,68 @@ app.post('/passport', (request, response) => {
     response.json(request.session.passport);
 });
 
-function isJoined(name, email, google_id) {
-    connection.query(`SELECT * FROM user_list WHERE email = '${email}' and google_id = '${google_id}'`,
+app.get('/', authenticateUser, (request, response) => {
+    response.sendFile(__dirname + '/app/index.html');
+});
+
+app.get('/signin', (request, response) => {
+    response.sendFile(__dirname + '/app/signin/index.html');
+});
+
+app.get('/signup', (request, response) => {
+    if (request.isAuthenticated()) {
+        const userData = request.session.passport.user;
+        connection.query(`SELECT * FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else if (Object.keys(rows).length >= 1) {
+                    response.status(301).redirect('/');
+                } else {
+                    response.sendFile(__dirname + '/app/signup/index.html');
+                }
+            });
+    } else {
+        response.status(301).redirect('/signin');
+    }
+});
+
+app.post('/signup_process', (request, response) => {
+    const userData = request.session.passport.user;
+
+    connection.query(`SELECT * FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
         (error, rows, fields) => {
             if (error) {
                 console.log(error);
             } else if (Object.keys(rows).length >= 1) {
-                // 세션 부여
-                console.log('로그인!');
+                console.log('already joined!');
             } else {
-                // 닉네임 생성
-                const chatName = 'kosuha';
-                // 세션 부여
-                console.log('회원정보 없음!');
-                addUser(name, chatName, email, google_id);
+                connection.query(
+                    `INSERT INTO user_list(name, chat_name, email, google_id) VALUES(?,?,?,?)`,
+                    [userData.userName, request.body.chatName, userData.googleEmail, userData.googleID],
+                    (error, rows, fields) => {
+                        if (error) {
+                            throw error;
+                        } else {
+                            request.session.passport.user.chatName = request.body.chatName;
+                            response.json({ "result": "success" })
+                        }
+                    }
+                );
             }
         });
-}
-
-function addUser(name, chat_name, email, google_id) {
-    connection.query(
-        `INSERT INTO user_list(name, chat_name, email, google_id) VALUES(?,?,?,?)`,
-        [name, chat_name, email, google_id],
-        (error, rows, fields) => {
-            if (error) {
-                throw error;
-            } else {
-                console.log('회원정보 생성완료!');
-            }
-        }
-    );
-}
+});
 
 io.on('connection', (socket) => {
-    io.emit('chat message', `${userNameInChat} 입장!`);
+    io.emit('chat message', `${userChatName} 입장!`);
     socket.on('disconnect', () => {
-        io.emit('chat message', `${userNameInChat} 퇴장!`);
+        io.emit('chat message', `${userChatName} 퇴장!`);
     });
 });
 
 io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
-        io.emit('chat message', `${userNameInChat}: ${msg}`);
+        io.emit('chat message', `${userChatName}: ${msg}`);
     });
 });
 
