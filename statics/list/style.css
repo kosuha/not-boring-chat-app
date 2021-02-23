@@ -1,0 +1,23 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: rgba(0, 0, 0, 0.15);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#topBar {
+    padding: 1rem;
+    border: 1px solid blue;
+}
+
+#lists {
+    display: flex;
+    flex-direction: column;
+}
+
+#roomList>div {
+    padding: 1rem;
+    border: 1px solid red;
+}

@@ -42,8 +42,20 @@ app.get('/', authenticateUser, (request, response) => {
 });
 
 app.get('/list', authenticateUser, (request, response) => {
+    const userData = request.session.passport.user;
     request.session.passport.user.room = '';
     response.sendFile(__dirname + '/app/list/index.html');
+});
+
+app.get('/room', authenticateUser, (request, response) => {
+    const userData = request.session.passport.user;
+    response.sendFile(__dirname + '/app/room/index.html');
+});
+
+// 현재 세션의 유저 정보를 반환
+app.post('/user_data_process', (request, response) => {
+    const userData = request.session.passport.user;
+    response.json(userData);
 });
 
 // 방 리스트를 반환
@@ -71,17 +83,17 @@ app.post('/list_room_process', (request, response) => {
             } else {
                 if (rows[0].room_list.includes(request.body.room)) {
                     request.session.passport.user.room = request.body.room
-                    response.json({result: true});
+                    response.json({ result: true });
                 } else {
-                    response.json({result: false});
+                    response.json({ result: false });
                 }
             }
         });
 });
 
-app.get('/room', authenticateUser, (request, response) => {
-    // console.log(request.session.passport.user.room);
-    response.sendFile(__dirname + '/app/room/index.html');
+app.post('/room_user_data_process', (request, response) => {
+    const userData = request.session.passport.user;
+    response.json(userData);
 });
 
 function sessionCheckAndSignIn() {
@@ -181,20 +193,31 @@ function sessionCheckAndSignIn() {
     });
 }
 
+socketIO();
 
+function socketIO() {
+    io.on('connection', (socket) => {
 
-// io.on('connection', (socket) => {
-//     io.emit('chat message', `${userChatName} 입장!`);
-//     socket.on('disconnect', () => {
-//         io.emit('chat message', `${userChatName} 퇴장!`);
-//     });
-// });
+        socket.on('joinRoom', (room, name) => {
+            socket.join(room, () => {
+                console.log(room, name);
+                io.to(room).emit('joinRoom', room, name);
+            });
+        });
 
-// io.on('connection', (socket) => {
-//     socket.on('chat message', (msg) => {
-//         io.emit('chat message', `${userChatName}: ${msg}`);
-//     });
-// });
+        socket.on('leaveRoom', (room, name) => {
+            socket.leave(room, () => {
+                console.log(room, name);
+                io.to(room).emit('leaveRoom', room, name);
+            });
+        });
+
+        socket.on('chat message', (roomNumber, chatName, message) => {
+            io.to(roomNumber).emit('chat message', chatName, message);
+        });
+
+    });
+}
 
 http.listen(80, () => {
     console.log('listening on * : 80');

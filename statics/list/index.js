@@ -1,7 +1,22 @@
 const roomList = document.querySelector('#roomList');
 const friendList = document.querySelector('#friendList');
+const chatName = document.querySelector('#chatName');
 
+getUserData();
 getListData();
+
+// 세션의 유저 정보 받아오기
+async function getUserData() {
+    let response = await fetch('/user_data_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+
+    let result = await response.json();
+    chatName.textContent = `${result.chatName}의 채팅`;
+}
 
 //방 리스트 받아오기
 async function getListData() {
@@ -33,7 +48,7 @@ async function sendRoomData(roomName) {
     let result = await response.json();
     // console.log(result, typeof (result));
     if (result.result === true) {
-        window.location.href = '/room';
+        window.location.href = `/room`;
     }
 }
 
