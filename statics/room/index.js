@@ -7,14 +7,13 @@ const messages = document.getElementById('messages');
 
 getUserData();
 
-// TODO: 비동기처리 문제해결필요.
-function socketIO(roomNumber, chatName) {
-    socket.emit('joinRoom', roomNumber, chatName);
+function socketIO(roomID, chatName) {
+    socket.emit('joinRoom', roomID, chatName);
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
-            socket.emit('chat message', roomNumber, chatName, input.value);
+            socket.emit('chat message', roomID, chatName, input.value);
 
             const item = document.createElement('li');
             item.id = 'myMessages';
@@ -27,7 +26,7 @@ function socketIO(roomNumber, chatName) {
     });
 
     leave.addEventListener('click' || 'touchStart', () => {
-        socket.emit('leaveRoom', roomNumber, chatName);
+        socket.emit('leaveRoom', roomID, chatName);
         window.location.href = `/list`;
     });
 
