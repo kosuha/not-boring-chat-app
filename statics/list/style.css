@@ -9,7 +9,13 @@ body {
 
 #topBar {
     padding: 1rem;
-    border: 1px solid blue;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: row;
+}
+
+#topBar>div {
+    padding-right: 1rem;
 }
 
 #lists {
@@ -19,5 +25,38 @@ body {
 
 #roomList>div {
     padding: 1rem;
-    border: 1px solid red;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+#generateRoomForm {
+    display: none;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+#roomNameInput {
+    border: none;
+    padding: 0 1rem;
+    flex-grow: 1;
+    border-radius: 5rem;
+    margin: 0.1rem;
+    width: 13rem;
+    height: 2rem;
+}
+
+input:focus {
+    outline: none;
+}
+
+#roomNameSummit {
+    background: #333;
+    border: none;
+    padding: 0 1rem;
+    border-radius: 5rem;
+    outline: none;
+    color: #fff;
+    height: 2rem;
+    line-height: 2rem;
+    width: 5rem;
+    text-align: center;
 }

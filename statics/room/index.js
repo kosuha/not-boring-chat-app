@@ -5,46 +5,40 @@ const input = document.getElementById('input');
 const leave = document.getElementById('leave');
 const messages = document.getElementById('messages');
 
-let roomNumber = '';
-let chatName = '';
-
 getUserData();
 
 // TODO: 비동기처리 문제해결필요.
+function socketIO(roomNumber, chatName) {
+    socket.emit('joinRoom', roomNumber, chatName);
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (input.value) {
-        socket.emit('chat message', roomNumber, chatName, input.value);
-        input.value = '';
-    }
-});
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (input.value) {
+            socket.emit('chat message', roomNumber, chatName, input.value);
 
-leave.addEventListener('click', () => {
-    socket.emit('leaveRoom', roomNumber, chatName);
-    window.location.href = `/list`;
-});
+            const item = document.createElement('li');
+            item.id = 'myMessages';
+            item.textContent = `${input.value}`;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
 
-socket.on('chat message', (_chatName, _message) => {
-    const item = document.createElement('li');
-    item.textContent = `${_chatName}: ${_message}`;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-});
+            input.value = '';
+        }
+    });
 
-socket.on('joinRoom', (_room, _chatName) => {
-    const item = document.createElement('li');
-    item.textContent = `${_chatName}님 입장!`;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-});
+    leave.addEventListener('click' || 'touchStart', () => {
+        socket.emit('leaveRoom', roomNumber, chatName);
+        window.location.href = `/list`;
+    });
 
-socket.on('leaveRoom', (_room, _chatName) => {
-    const item = document.createElement('li');
-    item.textContent = `${_chatName}님 퇴장!`;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-});
+    socket.on('chat message', (_chatName, _message) => {
+        const item = document.createElement('li');
+        item.textContent = `${_chatName}: ${_message}`;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+}
+
 
 // 사용자 정보 받아오기(서버에서 셋팅)
 async function getUserData() {
@@ -56,7 +50,5 @@ async function getUserData() {
     });
 
     let result = await response.json();
-    roomNumber = result.room;
-    chatName = result.chatName;
-    socket.emit('joinRoom', roomNumber, chatName);
+    socketIO(result.room, result.chatName);
 }

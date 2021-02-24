@@ -1,7 +1,7 @@
 const enter = document.querySelector('#enter');
 const chatName = document.querySelector('#chatName');
 
-enter.addEventListener('click', () => {
+enter.addEventListener('click' || 'touchStart', () => {
     sendChatName();
 });
 

@@ -36,65 +36,113 @@ const authenticateUser = (request, response, next) => {
 };
 
 sessionCheckAndSignIn();
+route();
+serverProcess();
+socketIO();
 
-app.get('/', authenticateUser, (request, response) => {
-    response.sendFile(__dirname + '/app/index.html');
-});
 
-app.get('/list', authenticateUser, (request, response) => {
-    const userData = request.session.passport.user;
-    request.session.passport.user.room = '';
-    response.sendFile(__dirname + '/app/list/index.html');
-});
 
-app.get('/room', authenticateUser, (request, response) => {
-    const userData = request.session.passport.user;
-    response.sendFile(__dirname + '/app/room/index.html');
-});
+function route() {
+    app.get('/', authenticateUser, (request, response) => {
+        response.sendFile(__dirname + '/app/index.html');
+    });
 
-// 현재 세션의 유저 정보를 반환
-app.post('/user_data_process', (request, response) => {
-    const userData = request.session.passport.user;
-    response.json(userData);
-});
+    app.get('/list', authenticateUser, (request, response) => {
+        const userData = request.session.passport.user;
+        request.session.passport.user.room = '';
+        response.sendFile(__dirname + '/app/list/index.html');
+    });
 
-// 방 리스트를 반환
-app.post('/list_process', (request, response) => {
-    const userData = request.session.passport.user;
+    app.get('/room', authenticateUser, (request, response) => {
+        const userData = request.session.passport.user;
+        response.sendFile(__dirname + '/app/room/index.html');
+    });
+}
 
-    connection.query(`SELECT room_list, friend_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
-        (error, rows, fields) => {
-            if (error) {
-                console.log(error);
-            } else {
-                response.json(rows[0]);
-            }
-        });
-});
+function serverProcess() {
+    // 현재 세션의 유저 정보를 반환
+    app.post('/user_data_process', (request, response) => {
+        const userData = request.session.passport.user;
+        response.json(userData);
+    });
 
-app.post('/list_room_process', (request, response) => {
-    const userData = request.session.passport.user;
+    // 방 리스트를 반환
+    app.post('/list_process', (request, response) => {
+        const userData = request.session.passport.user;
 
-    // 방 번호를 받아서 해당 유저의 방 목록에 있는지 확인하고 세션에 방 번호를 저장한 후 bool값으로 반환
-    connection.query(`SELECT room_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
-        (error, rows, fields) => {
-            if (error) {
-                console.log(error);
-            } else {
-                if (rows[0].room_list.includes(request.body.room)) {
-                    request.session.passport.user.room = request.body.room
-                    response.json({ result: true });
+        connection.query(`SELECT room_list, friend_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
                 } else {
-                    response.json({ result: false });
+                    response.json(rows[0]);
                 }
-            }
-        });
-});
+            });
+    });
 
-app.post('/room_user_data_process', (request, response) => {
-    const userData = request.session.passport.user;
-    response.json(userData);
-});
+    app.post('/list_room_process', (request, response) => {
+        const userData = request.session.passport.user;
+
+        // 방 번호를 받아서 해당 유저의 방 목록에 있는지 확인하고 세션에 방 번호를 저장한 후 bool값으로 반환
+        connection.query(`SELECT room_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    if (rows[0].room_list.includes(request.body.room)) {
+                        request.session.passport.user.room = request.body.room
+                        response.json({ result: true });
+                    } else {
+                        response.json({ result: false });
+                    }
+                }
+            });
+    });
+
+    app.post('/room_user_data_process', (request, response) => {
+        const userData = request.session.passport.user;
+        response.json(userData);
+    });
+
+    app.post('/room_generate_process', (request, response) => {
+        const userData = request.session.passport.user;
+        console.log(request.body);
+
+        let today = new Date();
+
+        let hours = today.getHours(); // 시
+        let minutes = today.getMinutes();  // 분
+        let seconds = today.getSeconds();  // 초
+        let milliseconds = today.getMilliseconds(); // 밀리초
+
+        let now = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+        let roomID = `${request.body.roomName};${userData.googleEmail};${now}`;
+
+        connection.query(
+            `INSERT INTO room_list(room_name,generator,room_id) VALUES(?, ?, ?)`,
+            [request.body.roomName, userData.googleEmail, roomID],
+            (error, rows, fields) => {
+                if (error) {
+                    throw error;
+                } else {
+                    connection.query(
+                        `UPDATE user_list SET room_list = JSON_ARRAY_INSERT(room_list, '$[0]', '${roomID}') WHERE email = '${userData.googleEmail}'`,
+                        (error, rows, fields) => {
+                            if (error) {
+                                throw error;
+                            } else {
+                                request.session.passport.user.room = roomID;
+                                response.json({ result: "success" });
+                            }
+                        });
+                }
+            });
+
+
+    });
+
+    // UPDATE `chat_app`.`user_list` SET `room_list` = '[\"aa\", \"bb\", \"cc\", \"dd\"]' WHERE (`num` = '22');
+}
 
 function sessionCheckAndSignIn() {
     app.use(session({
@@ -193,27 +241,23 @@ function sessionCheckAndSignIn() {
     });
 }
 
-socketIO();
-
 function socketIO() {
     io.on('connection', (socket) => {
 
         socket.on('joinRoom', (room, name) => {
             socket.join(room, () => {
-                console.log(room, name);
-                io.to(room).emit('joinRoom', room, name);
+                console.log('join!');
             });
         });
 
         socket.on('leaveRoom', (room, name) => {
             socket.leave(room, () => {
-                console.log(room, name);
-                io.to(room).emit('leaveRoom', room, name);
+                console.log('leave!');
             });
         });
 
         socket.on('chat message', (roomNumber, chatName, message) => {
-            io.to(roomNumber).emit('chat message', chatName, message);
+            socket.broadcast.to(roomNumber).emit('chat message', chatName, message);
         });
 
     });
