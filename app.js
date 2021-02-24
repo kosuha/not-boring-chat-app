@@ -224,18 +224,26 @@ function sessionCheckAndSignIn() {
                 } else if (Object.keys(rows).length >= 1) {
                     console.log('already joined!');
                 } else {
-                    connection.query(
-                        `INSERT INTO user_list(name, chat_name, email, google_id) VALUES(?,?,?,?)`,
-                        [userData.userName, request.body.chatName, userData.googleEmail, userData.googleID],
+                    connection.query(`SELECT * FROM user_list WHERE chat_name = '${request.body.chatName}'`,
                         (error, rows, fields) => {
                             if (error) {
-                                throw error;
+                                console.log(error);
+                            } else if (Object.keys(rows).length >= 1) {
+                                response.json({ "result": "failed" })
                             } else {
-                                request.session.passport.user.chatName = request.body.chatName;
-                                response.json({ "result": "success" })
+                                connection.query(
+                                    `INSERT INTO user_list(name, chat_name, email, google_id, room_list, friend_list) VALUES(?,?,?,?,?,?)`,
+                                    [userData.userName, request.body.chatName, userData.googleEmail, userData.googleID, "[]", "[]"],
+                                    (error, rows, fields) => {
+                                        if (error) {
+                                            throw error;
+                                        } else {
+                                            request.session.passport.user.chatName = request.body.chatName;
+                                            response.json({ "result": "success" })
+                                        }
+                                    });
                             }
-                        }
-                    );
+                        });
                 }
             });
     });

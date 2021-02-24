@@ -1,9 +1,11 @@
 const socket = io();
 
-const form = document.getElementById('form');
-const input = document.getElementById('input');
-const leave = document.getElementById('leave');
-const messages = document.getElementById('messages');
+const form = document.querySelector('#form');
+const input = document.querySelector('#input');
+const leave = document.querySelector('#leave');
+const messages = document.querySelector('#messages');
+const inviteWindowWrap = document.querySelector('#inviteWindowWrap');
+const closeInvite = document.querySelector('#close');
 
 getUserData();
 
@@ -12,15 +14,16 @@ function socketIO(roomID, chatName) {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+
         if (input.value) {
             socket.emit('chat message', roomID, chatName, input.value);
-
+            let myMessage = makeInviteButton(input.value);
             const item = document.createElement('li');
             item.id = 'myMessages';
-            item.textContent = `${input.value}`;
+            item.insertAdjacentHTML('afterbegin', myMessage);
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-
+            inviteEvent();
             input.value = '';
         }
     });
@@ -31,10 +34,12 @@ function socketIO(roomID, chatName) {
     });
 
     socket.on('chat message', (_chatName, _message) => {
+        let replacedMessage = makeInviteButton(_message);
         const item = document.createElement('li');
-        item.textContent = `${_chatName}: ${_message}`;
+        item.insertAdjacentHTML('afterbegin', `${_chatName}: ${replacedMessage}`);
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
+        inviteEvent();
     });
 }
 
@@ -51,3 +56,29 @@ async function getUserData() {
     let result = await response.json();
     socketIO(result.room, result.chatName);
 }
+
+// 메시지에 @invite가 있으면 링크로 변환해서 반환
+function makeInviteButton(inputmessage, tag) {
+    const invite = '@invite'
+    const inviteButton = '<a class="invite">@invite</a>';
+    if (inputmessage.includes(invite)) {
+        const regexp = new RegExp(invite, "gi");
+        return inputmessage.replace(regexp, inviteButton);
+    }
+    return inputmessage;
+}
+
+// @invite를 누르면 팝업
+function inviteEvent() {
+    const inviteTag = document.getElementsByClassName('invite');
+    for (let i = 0; i < inviteTag.length; i++) {
+        inviteTag[i].addEventListener('click' || 'touchstart', () => {
+            inviteWindowWrap.style.display = 'inline';
+        });
+    }
+}
+
+// 팝업 닫기
+closeInvite.addEventListener('click' || 'touchstart', () => {
+    inviteWindowWrap.style.display = 'none';
+});

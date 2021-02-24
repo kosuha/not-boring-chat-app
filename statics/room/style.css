@@ -52,3 +52,137 @@ body {
 #myMessages {
     text-align: right;
 }
+
+#topBar {
+    border: 1px solid rgb(0, 60, 255);
+}
+
+#inviteWindowWrap {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#inviteWindow {
+    border-radius: 2rem;
+    border-bottom: 1px solid rgb(50, 50, 50);
+    border-right: 1px solid rgb(50, 50, 50);
+    background-color: rgb(150, 150, 150);
+    width:80vw;
+    height:60vh;
+    position:absolute;
+    left:50%;
+    top:50%;
+    margin-left:-40vw;
+    margin-top:-30vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+}
+
+#close {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#search {
+/*     border: 1px solid rgb(255, 0, 0); */
+    display: flex;
+    padding: 0.1rem;
+}
+
+#searchInput {
+    border: none;
+    padding: 0 1rem;
+    flex-grow: 1;
+    border-radius: 5rem;
+    margin: 0.1rem;
+    width: 13rem;
+    height: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+input:focus {
+    outline: none;
+}
+
+#searchButton {
+    background: #333;
+    border: none;
+    padding: 0 1rem;
+    border-radius: 5rem;
+    outline: none;
+    color: #fff;
+    height: 2rem;
+    line-height: 2rem;
+    width: 5rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    margin-left: 0.1rem;
+}
+
+#friendList {
+    background-color: #fff;
+    margin: 0.5rem;
+    border-radius: 2rem;
+    height: 100%;
+    padding: 1rem;
+    overflow: auto;
+}
+
+#friendList>div {
+    border-radius: 1rem;
+    background-color: rgba(0, 0, 0, 0.15);
+    height: 3rem;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    flex-direction: row;
+}
+
+#profilesImage {
+    border-radius: 1rem;
+    background-color: aqua;
+    width: 3rem;
+    height: 3rem;
+}
+
+#profilesChatName {
+    margin-left: 0.5rem;
+    flex-grow: 1;
+}
+
+#profilesInvite {
+    border-radius: 10rem;
+    border: 1px solid black;
+    width: 3rem;
+    height: 3rem;
+}
+
+@media (min-width: 600px) {
+    #inviteWindow {
+        border-radius: 2rem;
+        border-bottom: 1px solid rgb(50, 50, 50);
+        border-right: 1px solid rgb(50, 50, 50);
+        background-color: rgb(150, 150, 150);
+        width: 500px;
+        height: 60vh;
+        position:absolute;
+        left:50%;
+        top:50%;
+        margin-left:-250px;
+        margin-top:-30vh;
+        display: flex;
+        flex-direction: column;
+        padding-top: 1rem;
+    }
+}
