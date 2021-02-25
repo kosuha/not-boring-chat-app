@@ -68,7 +68,7 @@ function roomListTemplate(roomID) {
 
 // 방 아이디에서 방 이름을 추출하는 함수
 function parseRoomIdToName(roomID) {
-    return roomID.split(';')[0];
+    return roomID.split('/')[0];
 }
 
 // 방 생성하는 폼을 보여주는 이벤트
@@ -90,7 +90,7 @@ roomNameSummit.addEventListener(('click' || 'touchStart'), () => {
             sendRoomNameData(roomNameInput.value);
             roomNameInput.value = '';
         } else {
-            alertMessage.textContent = `' ; ' 은 포함 될 수 없습니다!`;
+            alertMessage.textContent = `' ; 또는 / ' 은 포함 될 수 없습니다!`;
         }
     } else {
         alertMessage.textContent = `방 이름이 비어있어요!`;
@@ -113,7 +113,7 @@ function emptyCheck(text) {
 }
 
 function semicolonCheck(text) {
-    if (text.includes(';')) {
+    if (text.includes(';') || text.includes('/')) {
         return false;
     } else {
         return true;

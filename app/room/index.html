@@ -12,6 +12,7 @@
 <body>
     <div id="topBar">
         <div id="leave">나가기</div>
+        <div id="menu">메뉴</div>
     </div>
     <ul id="messages"></ul>
     <form id="form" action="">
@@ -21,46 +22,10 @@
         <div id="close"></div>
         <div id="inviteWindow">
             <div id="search">
-                <input id="searchInput" type="text" />
+                <input id="searchInput" type="text" autocomplete="off" />
                 <button id="searchButton">Search</button>
             </div>
-            <div id="friendList">
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-                <div class="profiles">
-                    <div id="profilesImage"><img src="" alt="" srcset=""></div>
-                    <div id="profilesChatName">kosuha</div>
-                    <div id="profilesInvite">invite</div>
-                </div>
-            </div>
+            <div id="friendList"></div>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>

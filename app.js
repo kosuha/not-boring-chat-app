@@ -104,6 +104,7 @@ function serverProcess() {
         response.json(userData);
     });
 
+    // 방을 생성하고 자신의 방 목록에 추가한 후 세션에 방 정보 저장
     app.post('/room_generate_process', (request, response) => {
         const userData = request.session.passport.user;
         console.log(request.body);
@@ -116,11 +117,11 @@ function serverProcess() {
         let milliseconds = today.getMilliseconds(); // 밀리초
 
         let now = `${hours}:${minutes}:${seconds}:${milliseconds}`;
-        let roomID = `${request.body.roomName};${userData.googleEmail};${now}`;
+        let roomID = `${request.body.roomName}/${userData.googleEmail}/${now}`; // 방 ID = 방이름;생성자의 이메일;생성시간
 
         connection.query(
-            `INSERT INTO room_list(room_name,generator,room_id) VALUES(?, ?, ?)`,
-            [request.body.roomName, userData.googleEmail, roomID],
+            `INSERT INTO room_list(room_name,generator,room_id, member) VALUES(?, ?, ?, ?)`,
+            [request.body.roomName, userData.googleEmail, roomID, `["${userData.googleEmail}"]`],
             (error, rows, fields) => {
                 if (error) {
                     throw error;
@@ -137,11 +138,122 @@ function serverProcess() {
                         });
                 }
             });
-
-
     });
 
-    // UPDATE `chat_app`.`user_list` SET `room_list` = '[\"aa\", \"bb\", \"cc\", \"dd\"]' WHERE (`num` = '22');
+    // 친구 목록에서 이메일을 가져와서 이메일에 해당하는 친구의 챗네임을 리스트로 반환
+    app.post('/friend_list_process', (request, response) => {
+        const userData = request.session.passport.user;
+
+        connection.query(`SELECT friend_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    let friendEmailListNotMember = [];
+                    const friendEmailList = rows[0].friend_list;
+
+                    connection.query(`SELECT member FROM room_list WHERE room_id = '${userData.room}'`,
+                        (error, rows, fields) => {
+                            if (error) {
+                                console.log(error);
+                            } else {
+                                const memberList = rows[0].member;
+                                for (let i = 0; i < friendEmailList.length; i++) {
+                                    if (!memberList.includes(friendEmailList[i])) {
+                                        friendEmailListNotMember.push(friendEmailList[i]);
+                                    }
+                                }
+                                let result = [];
+                                for (let i = 0; i < friendEmailListNotMember.length; i++) {
+                                    connection.query(`SELECT chat_name FROM user_list WHERE email = '${friendEmailListNotMember[i]}'`,
+                                        (error, rows, fields) => {
+                                            if (error) {
+                                                console.log(error);
+                                            } else {
+                                                result.push(rows[0].chat_name);
+                                                if (result.length === friendEmailListNotMember.length) {
+                                                    response.json(result);
+                                                }
+                                            }
+                                        });
+                                }
+                            }
+                        });
+
+
+
+                    if (friendEmailList.length > 0) {
+
+
+
+                    } else {
+                        response.json(result);
+                    }
+                }
+            });
+    });
+
+    app.post('/invite_process', (request, response) => {
+        const userData = request.session.passport.user;
+        const chatName = request.body.chatName;
+
+        connection.query(`SELECT room_list, email FROM user_list WHERE chat_name = '${chatName}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    const chatNameRoomList = rows[0].room_list;
+                    const chatNameEmail = rows[0].email;
+                    if (!chatNameRoomList.includes(userData.room)) {
+                        connection.query(
+                            `UPDATE user_list SET room_list = JSON_ARRAY_INSERT(room_list, '$[0]', '${userData.room}') WHERE chat_name = '${chatName}'`,
+                            (error, rows, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    connection.query(
+                                        `UPDATE room_list SET member = JSON_ARRAY_INSERT(member, '$[0]', '${chatNameEmail}') WHERE room_id = '${userData.room}'`,
+                                        (error, rows, fields) => {
+                                            if (error) {
+                                                console.log(error);
+                                            } else {
+                                                response.json({ result: "success" });
+                                            }
+                                        });
+                                }
+                            });
+                    }
+                }
+            });
+    });
+
+    app.post('/get_member_list_process', (request, response) => {
+        const userData = request.session.passport.user;
+
+        connection.query(`SELECT member FROM room_list WHERE room_id = '${userData.room}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    let result = [];
+                    const memberList = rows[0].member;
+                    for (let i = 0; i < memberList.length; i++) {
+                        connection.query(`SELECT chat_name FROM user_list WHERE email = '${memberList[i]}'`,
+                            (error, rows, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    result.push(rows[0].chat_name);
+                                    if (result.length === memberList.length) {
+                                        response.json(result);
+                                    }
+                                }
+                            });
+                    }
+                }
+            });
+    });
+
 }
 
 function sessionCheckAndSignIn() {

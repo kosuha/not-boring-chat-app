@@ -161,11 +161,12 @@ input:focus {
     flex-grow: 1;
 }
 
-#profilesInvite {
+.profilesInvite {
     border-radius: 10rem;
     border: 1px solid black;
     width: 3rem;
     height: 3rem;
+    text-align: center;
 }
 
 @media (min-width: 600px) {
