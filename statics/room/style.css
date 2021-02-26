@@ -50,12 +50,14 @@ body {
     justify-content: flex-end;
     margin: 0;
     padding-bottom: 5.5rem;
+    padding-top: 5.5rem;
     flex-grow: 1;
 }
 
 #messages>div {
     padding: 0.5rem 1rem;
     max-width: 16rem;
+    min-height: 1rem;
     flex-wrap: wrap;
     margin: 0.3rem;
     border-radius: 1rem;
@@ -78,7 +80,6 @@ body {
     flex-direction: row;
     position: fixed;
     width: 100%;
-    background-color:
 }
 
 #topBar>div {
