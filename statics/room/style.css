@@ -1,20 +1,25 @@
 body {
+    height: 100vh;
     margin: 0;
-    padding-bottom: 3rem;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+#all {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #form {
     background: rgba(0, 0, 0, 0.15);
     padding: 0.25rem;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
     display: flex;
     height: 5rem;
     box-sizing: border-box;
     backdrop-filter: blur(10px);
+    bottom: 0;
+    width: 100%;
+    position: fixed;
 }
 
 #input {
@@ -40,21 +45,48 @@ body {
 }
 
 #messages {
-    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     margin: 0;
-    padding: 0;
+    padding-bottom: 5.5rem;
+    flex-grow: 1;
 }
 
-#messages>li {
+#messages>div {
     padding: 0.5rem 1rem;
+    max-width: 16rem;
+    flex-wrap: wrap;
+    margin: 0.3rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 #myMessages {
-    text-align: right;
+    align-self: flex-end;
+}
+
+#notMyMessages {
+    align-self: flex-start;
 }
 
 #topBar {
-    border: 1px solid rgb(0, 60, 255);
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    width: 100%;
+    background-color:
+}
+
+#topBar>div {
+    padding: 1rem;
+}
+
+#leave {
+    flex-grow: 1;
 }
 
 #inviteWindowWrap {
@@ -72,13 +104,13 @@ body {
     border-bottom: 1px solid rgb(50, 50, 50);
     border-right: 1px solid rgb(50, 50, 50);
     background-color: rgb(150, 150, 150);
-    width:80vw;
-    height:60vh;
-    position:absolute;
-    left:50%;
-    top:50%;
-    margin-left:-40vw;
-    margin-top:-30vh;
+    width: 80vw;
+    height: 60vh;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -40vw;
+    margin-top: -30vh;
     display: flex;
     flex-direction: column;
     padding-top: 1rem;
@@ -91,7 +123,7 @@ body {
 }
 
 #search {
-/*     border: 1px solid rgb(255, 0, 0); */
+    /*     border: 1px solid rgb(255, 0, 0); */
     display: flex;
     padding: 0.1rem;
 }
@@ -177,11 +209,11 @@ input:focus {
         background-color: rgb(150, 150, 150);
         width: 500px;
         height: 60vh;
-        position:absolute;
-        left:50%;
-        top:50%;
-        margin-left:-250px;
-        margin-top:-30vh;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -250px;
+        margin-top: -30vh;
         display: flex;
         flex-direction: column;
         padding-top: 1rem;

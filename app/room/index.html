@@ -10,22 +10,24 @@
 </head>
 
 <body>
-    <div id="topBar">
-        <div id="leave">나가기</div>
-        <div id="menu">메뉴</div>
-    </div>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
-    <div id="inviteWindowWrap">
-        <div id="close"></div>
-        <div id="inviteWindow">
-            <div id="search">
-                <input id="searchInput" type="text" autocomplete="off" />
-                <button id="searchButton">Search</button>
+    <div id="all">
+        <div id="topBar">
+            <div id="leave">나가기</div>
+            <div id="menu">메뉴</div>
+        </div>
+        <div id="messages"></div>
+        <form id="form" action="">
+            <input id="input" autocomplete="off" /><button>Send</button>
+        </form>
+        <div id="inviteWindowWrap">
+            <div id="close"></div>
+            <div id="inviteWindow">
+                <div id="search">
+                    <input id="searchInput" type="text" autocomplete="off" />
+                    <button id="searchButton">Search</button>
+                </div>
+                <div id="friendList"></div>
             </div>
-            <div id="friendList"></div>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>

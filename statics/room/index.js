@@ -21,7 +21,7 @@ function socketIO(roomID, chatName) {
         if (input.value) {
             socket.emit('chat message', roomID, chatName, input.value);
             let myMessage = makeInviteButton(input.value);
-            const item = document.createElement('li');
+            const item = document.createElement('div');
             item.id = 'myMessages';
             item.insertAdjacentHTML('afterbegin', myMessage);
             messages.appendChild(item);
@@ -38,7 +38,8 @@ function socketIO(roomID, chatName) {
 
     socket.on('chat message', (_chatName, _message) => {
         let replacedMessage = makeInviteButton(_message);
-        const item = document.createElement('li');
+        const item = document.createElement('div');
+        item.id = 'notMyMessages';
         item.insertAdjacentHTML('afterbegin', `${_chatName}: ${replacedMessage}`);
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
