@@ -158,10 +158,3 @@ async function getMemberList() {
     return result;
 }
 
-// 초대 알림
-// 방 리스트 실시간 업데이트
-// 방 멤버 리스트
-// 방 나가기
-// 친구 추가
-// 친구 삭제
-

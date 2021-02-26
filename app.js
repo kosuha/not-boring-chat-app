@@ -44,7 +44,6 @@ socketIO();
 
 function route() {
     app.get('/', authenticateUser, (request, response) => {
-        // console.log(request.session.passport.user);
         request.session.passport.user.room = '';
         response.sendFile(__dirname + '/app/index.html');
     });
@@ -65,7 +64,6 @@ function serverProcess() {
     //  세션에 탭 정보를 저장
     app.post('/session_tap_process', (request, response) => {
         request.session.passport.user.tap = request.body.tap;
-        // console.log('tap!', request.session.passport.user);
         const userData = request.session.passport.user;
         response.json(userData);
     });

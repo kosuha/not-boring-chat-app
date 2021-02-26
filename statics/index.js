@@ -108,7 +108,6 @@ async function sendRoomData(roomID) {
     });
 
     let result = await response.json();
-    // console.log(result, typeof (result));
     if (result.result === true) {
         window.location.href = `/room`;
     }
