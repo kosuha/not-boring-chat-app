@@ -6,17 +6,18 @@ const roomNameInput = document.querySelector('#roomNameInput');
 const roomNameSummit = document.querySelector('#roomNameSummit');
 const alertMessage = document.querySelector('#alertMessage');
 
-tap();
+const navs = document.getElementsByClassName('navs');
+const taps = document.getElementsByClassName('taps');
+
 getUserData();
+tap();
 getListData();
 
 
 function tap() {
-    const navs = document.getElementsByClassName('navs');
-    const taps = document.getElementsByClassName('taps');
-
     for (let i = 0; i < navs.length; i++) {
         navs[i].addEventListener(('click' || 'touchStart'), () => {
+            sendTapDataToSession(`${i}`);
             for (let j = 0; j < taps.length; j++) {
                 if (i === j) {
                     taps[j].style.display = 'inline';
@@ -25,7 +26,6 @@ function tap() {
                 }
             }
         });
-
     }
 }
 
@@ -36,6 +36,45 @@ async function getUserData() {
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         }
+    });
+
+    let result = await response.json();
+    console.log('client: ', result.tap);
+    if (result.tap === '0') {
+        taps[0].style.display = 'inline';
+        taps[1].style.display = 'none';
+        taps[2].style.display = 'none';
+        taps[3].style.display = 'none';
+    } else if (result.tap === '1') {
+        taps[0].style.display = 'none';
+        taps[1].style.display = 'inline';
+        taps[2].style.display = 'none';
+        taps[3].style.display = 'none';
+    } else if (result.tap === '2') {
+        taps[0].style.display = 'none';
+        taps[1].style.display = 'none';
+        taps[2].style.display = 'inline';
+        taps[3].style.display = 'none';
+    } else if (result.tap === '3') {
+        taps[0].style.display = 'none';
+        taps[1].style.display = 'none';
+        taps[2].style.display = 'none';
+        taps[3].style.display = 'inline';
+    } else {
+        taps[0].style.display = 'inline';
+        taps[1].style.display = 'none';
+        taps[2].style.display = 'none';
+        taps[3].style.display = 'none';
+    }
+}
+
+async function sendTapDataToSession(i) {
+    let response = await fetch('/session_tap_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ tap: i })
     });
 
     let result = await response.json();

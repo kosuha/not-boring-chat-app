@@ -2,9 +2,11 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const connection = require('./lib/conn.js');
+const sessionStoreConn = require('./lib/sessionStoreConn.js');
 const io = require('socket.io')(http);
 const session = require('express-session');
 const passport = require('passport');
+const MySQLStore = require('express-mysql-session')(session);
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const googleCredentials = require('./config/google.json');
 const sessionData = require('./config/session.json');
@@ -40,17 +42,11 @@ route();
 serverProcess();
 socketIO();
 
-
-
 function route() {
     app.get('/', authenticateUser, (request, response) => {
-        response.sendFile(__dirname + '/app/index.html');
-    });
-
-    app.get('/list', authenticateUser, (request, response) => {
-        const userData = request.session.passport.user;
+        // console.log(request.session.passport.user);
         request.session.passport.user.room = '';
-        response.sendFile(__dirname + '/app/list/index.html');
+        response.sendFile(__dirname + '/app/index.html');
     });
 
     app.get('/room', authenticateUser, (request, response) => {
@@ -62,6 +58,14 @@ function route() {
 function serverProcess() {
     // 현재 세션의 유저 정보를 반환
     app.post('/user_data_process', (request, response) => {
+        const userData = request.session.passport.user;
+        response.json(userData);
+    });
+
+    //  세션에 탭 정보를 저장
+    app.post('/session_tap_process', (request, response) => {
+        request.session.passport.user.tap = request.body.tap;
+        // console.log('tap!', request.session.passport.user);
         const userData = request.session.passport.user;
         response.json(userData);
     });
@@ -179,16 +183,6 @@ function serverProcess() {
                                 }
                             }
                         });
-
-
-
-                    if (friendEmailList.length > 0) {
-
-
-
-                    } else {
-                        response.json(result);
-                    }
                 }
             });
     });
@@ -260,8 +254,9 @@ function sessionCheckAndSignIn() {
     app.use(session({
         secret: sessionData.data.secret,
         resave: false,
-        saveUninitialized: true
-    }))
+        saveUninitialized: true,
+        store: new MySQLStore(sessionStoreConn)
+    }));
 
     // Passport setting 
     app.use(passport.initialize());
@@ -285,9 +280,11 @@ function sessionCheckAndSignIn() {
             const userName = profile.displayName
 
             let user = {
-                userName: profile.displayName,
-                googleID: profile.id,
-                googleEmail: profile.emails[0].value
+                userName: userName,
+                googleID: googleID,
+                googleEmail: googleEmail,
+                room: "",
+                tap: "0",
             };
             done(null, user);
         }

@@ -11,25 +11,23 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-}
-
-#all > div {
     flex-grow: 1;
 }
 
-#rooms, #noti, #search {
+#all>div {
+    flex-grow: 1;
     display: none;
 }
 
 #navBar {
     display: flex;
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
 }
 
-#navBar> div {
+#navBar>div {
     padding: 1rem;
     flex-grow: 1;
-    text-align:center;
-    border-top: 1px solid rgba(0, 0, 0, 0.3);
+    text-align: center;
 }
 
 #topBar {
@@ -84,4 +82,19 @@ input:focus {
     line-height: 2rem;
     width: 5rem;
     text-align: center;
+}
+
+@media (min-width: 599px) {
+    body {
+        flex-direction: row-reverse;
+    }
+    #navBar {
+        display: block;
+        border-right: 1px solid rgba(0, 0, 0, 0.3);
+    }
+    #navBar>div {
+        margin-top: 1rem;
+        padding: 1rem;
+        text-align: center;
+    }
 }
