@@ -7,6 +7,31 @@ body {
     flex-direction: column;
 }
 
+#all {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#all > div {
+    flex-grow: 1;
+}
+
+#rooms, #noti, #search {
+    display: none;
+}
+
+#navBar {
+    display: flex;
+}
+
+#navBar> div {
+    padding: 1rem;
+    flex-grow: 1;
+    text-align:center;
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
+}
+
 #topBar {
     padding: 1rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.3);
@@ -14,8 +39,8 @@ body {
     flex-direction: row;
 }
 
-#topBar>div {
-    padding-right: 1rem;
+#topBar>#title {
+    flex-grow: 1;
 }
 
 #lists {
