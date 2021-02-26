@@ -33,7 +33,7 @@ function socketIO(roomID, chatName) {
 
     leave.addEventListener('click' || 'touchStart', () => {
         socket.emit('leaveRoom', roomID, chatName);
-        window.location.href = `/list`;
+        window.location.href = `/`;
     });
 
     socket.on('chat message', (_chatName, _message) => {

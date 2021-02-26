@@ -6,8 +6,28 @@ const roomNameInput = document.querySelector('#roomNameInput');
 const roomNameSummit = document.querySelector('#roomNameSummit');
 const alertMessage = document.querySelector('#alertMessage');
 
+tap();
 getUserData();
 getListData();
+
+
+function tap() {
+    const navs = document.getElementsByClassName('navs');
+    const taps = document.getElementsByClassName('taps');
+
+    for (let i = 0; i < navs.length; i++) {
+        navs[i].addEventListener(('click' || 'touchStart'), () => {
+            for (let j = 0; j < taps.length; j++) {
+                if (i === j) {
+                    taps[j].style.display = 'inline';
+                } else {
+                    taps[j].style.display = 'none';
+                }
+            }
+        });
+
+    }
+}
 
 // 세션의 유저 정보 받아오기
 async function getUserData() {
