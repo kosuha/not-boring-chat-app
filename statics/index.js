@@ -5,6 +5,9 @@ const generateRoomForm = document.querySelector('#generateRoomForm');
 const roomNameInput = document.querySelector('#roomNameInput');
 const roomNameSummit = document.querySelector('#roomNameSummit');
 const alertMessage = document.querySelector('#alertMessage');
+const searchInput = document.querySelector('#searchInput');
+const searchSummit = document.querySelector('#searchSummit');
+const searchResult = document.querySelector('#searchResult');
 
 const navs = document.getElementsByClassName('navs');
 const taps = document.getElementsByClassName('taps');
@@ -13,7 +16,6 @@ getUserData();
 tap();
 getFriendsListData();
 getRoomIdListData();
-
 
 function tap() {
     for (let i = 0; i < navs.length; i++) {
@@ -40,7 +42,7 @@ async function getUserData() {
     });
 
     let result = await response.json();
-    console.log('client: ', result.tap);
+    // console.log('client: ', result.tap);
     if (result.tap === '0') {
         taps[0].style.display = 'inline';
         taps[1].style.display = 'none';
@@ -189,7 +191,7 @@ async function sendRoomNameData(roomName) {
     });
 
     let result = await response.json();
-    console.log(result);
+    // console.log(result);
     if (result.result === "success") {
         window.location.href = `/room`;
     }
@@ -204,8 +206,8 @@ async function getFriendsListData() {
     });
 
     let result = await response.json();
-    console.log(result);
-    
+    // console.log(result);
+
     if (result.length > 0) {
         for (let i = 0; i < result.length; i++) {
             const fragment = document.createDocumentFragment();
@@ -226,6 +228,63 @@ async function getFriendsListData() {
             profilesTag.appendChild(profilesChatNameTag);
 
             friendList.appendChild(fragment);
+        }
+    }
+}
+
+searchInput.addEventListener('input', () => {
+    sendSearchInputData(searchInput.value);
+});
+
+// searchSummit.addEventListener('click' || 'touchStart', () => {
+//     sendSearchInputData(searchInput.value);
+// });
+
+async function sendSearchInputData(inputText) {
+    let response = await fetch('/search_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ inputText: inputText })
+    });
+
+    let result = await response.json();
+    // console.log(result);
+
+    while (searchResult.firstChild) {
+        searchResult.removeChild(searchResult.firstChild);
+    }
+
+    if (result.length > 0) {
+        for (let i = 0; i < result.length; i++) {
+            const fragment = document.createDocumentFragment();
+
+            const profilesTag = document.createElement('div');
+            profilesTag.class = 'searchResultProfiles';
+            fragment.appendChild(profilesTag);
+
+            const profilesImageTag = document.createElement('div');
+            profilesImageTag.id = 'searchResultProfilesImage';
+            const img = document.createElement('img');
+            profilesImageTag.appendChild(img);
+            profilesTag.appendChild(profilesImageTag);
+
+            const profilesChatNameTag = document.createElement('div');
+            profilesChatNameTag.id = 'searchResultProfilesChatName';
+            profilesChatNameTag.textContent = result[i].chat_name;
+            profilesTag.appendChild(profilesChatNameTag);
+
+            const sendAddFriendTag = document.createElement('div');
+            sendAddFriendTag.id = 'sendAddFriend';
+            sendAddFriendTag.textContent = '친구 요청';
+            sendAddFriendTag.addEventListener('click' || 'touchstart', () => {
+                sendAddFriendTag.style.display = 'none';
+                // 친구추가 알림 보내기
+            });
+            profilesTag.appendChild(sendAddFriendTag);
+
+            searchResult.appendChild(fragment);
         }
     }
 }

@@ -273,6 +273,18 @@ function serverProcess() {
             });
     });
 
+    app.post('/search_process', (request, response) => {
+        const userData = request.session.passport.user;
+        const input = request.body.inputText
+        connection.query(`SELECT * FROM user_list WHERE MATCH (name, chat_name, email) AGAINST ('${input}' IN NATURAL LANGUAGE MODE);`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    response.json(rows);
+                }
+            });
+    });
 }
 
 function sessionCheckAndSignIn() {
