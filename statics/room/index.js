@@ -88,7 +88,7 @@ closeInvite.addEventListener('click' || 'touchstart', () => {
 });
 
 async function getFriendListData() {
-    let response = await fetch('/friend_list_process', {
+    let response = await fetch('/friend_list_invite_process', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'

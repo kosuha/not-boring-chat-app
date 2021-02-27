@@ -84,6 +84,28 @@ input:focus {
     text-align: center;
 }
 
+#friendList>div {
+    border-radius: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.15);
+    height: 4rem;
+    padding: 0.8rem;
+    margin: 0.5rem;
+    display: flex;
+    flex-direction: row;
+}
+
+#profilesImage {
+    border-radius: 1rem;
+    background-color: rgb(85, 85, 85);
+    width: 4rem;
+    height: 4rem;
+}
+
+#profilesChatName {
+    margin-left: 1rem;
+    flex-grow: 1;
+}
+
 @media (min-width: 599px) {
     body {
         flex-direction: row-reverse;
@@ -91,6 +113,7 @@ input:focus {
     #navBar {
         display: block;
         border-right: 1px solid rgba(0, 0, 0, 0.3);
+        border-top: none;
     }
     #navBar>div {
         margin-top: 1rem;

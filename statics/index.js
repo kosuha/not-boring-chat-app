@@ -11,7 +11,8 @@ const taps = document.getElementsByClassName('taps');
 
 getUserData();
 tap();
-getListData();
+getFriendsListData();
+getRoomIdListData();
 
 
 function tap() {
@@ -81,7 +82,7 @@ async function sendTapDataToSession(i) {
 }
 
 //방id 리스트 받아오기
-async function getListData() {
+async function getRoomIdListData() {
     let response = await fetch('/list_process', {
         method: 'POST',
         headers: {
@@ -191,5 +192,40 @@ async function sendRoomNameData(roomName) {
     console.log(result);
     if (result.result === "success") {
         window.location.href = `/room`;
+    }
+}
+
+async function getFriendsListData() {
+    let response = await fetch('/friend_list_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+
+    let result = await response.json();
+    console.log(result);
+    
+    if (result.length > 0) {
+        for (let i = 0; i < result.length; i++) {
+            const fragment = document.createDocumentFragment();
+
+            const profilesTag = document.createElement('div');
+            profilesTag.class = 'profiles';
+            fragment.appendChild(profilesTag);
+
+            const profilesImageTag = document.createElement('div');
+            profilesImageTag.id = 'profilesImage';
+            const img = document.createElement('img');
+            profilesImageTag.appendChild(img);
+            profilesTag.appendChild(profilesImageTag);
+
+            const profilesChatNameTag = document.createElement('div');
+            profilesChatNameTag.id = 'profilesChatName';
+            profilesChatNameTag.textContent = result[i];
+            profilesTag.appendChild(profilesChatNameTag);
+
+            friendList.appendChild(fragment);
+        }
     }
 }

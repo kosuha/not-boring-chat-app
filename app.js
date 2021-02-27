@@ -143,7 +143,7 @@ function serverProcess() {
     });
 
     // 친구 목록에서 이메일을 가져와서 이메일에 해당하는 친구의 챗네임을 리스트로 반환
-    app.post('/friend_list_process', (request, response) => {
+    app.post('/friend_list_invite_process', (request, response) => {
         const userData = request.session.passport.user;
 
         connection.query(`SELECT friend_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
@@ -237,6 +237,33 @@ function serverProcess() {
                                 } else {
                                     result.push(rows[0].chat_name);
                                     if (result.length === memberList.length) {
+                                        response.json(result);
+                                    }
+                                }
+                            });
+                    }
+                }
+            });
+    });
+
+    app.post('/friend_list_process', (request, response) => {
+        const userData = request.session.passport.user;
+
+        connection.query(`SELECT friend_list FROM user_list WHERE email = '${userData.googleEmail}' and google_id = '${userData.googleID}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    const friendEmailList = rows[0].friend_list;
+                    let result = [];
+                    for (let i = 0; i < friendEmailList.length; i++) {
+                        connection.query(`SELECT chat_name FROM user_list WHERE email = '${friendEmailList[i]}'`,
+                            (error, rows, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    result.push(rows[0].chat_name);
+                                    if (result.length === friendEmailList.length) {
                                         response.json(result);
                                     }
                                 }
