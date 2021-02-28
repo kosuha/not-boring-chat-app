@@ -5,6 +5,8 @@ TODO:
     
     프로필 보기
     친구 삭제 기능
+
+    방에 초대하면 초대 받은 사람의 리스트 업데이트
 */
 
 
@@ -453,7 +455,7 @@ function sessionCheckAndSignIn() {
     passport.use(new GoogleStrategy({
         clientID: googleCredentials.web.client_id,
         clientSecret: googleCredentials.web.client_secret,
-        callbackURL: "http://localhost/auth/google/callback"
+        callbackURL: googleCredentials.web.redirect_uris[0]
     },
         function (accessToken, refreshToken, profile, done) {
             const googleEmail = profile.emails[0].value;

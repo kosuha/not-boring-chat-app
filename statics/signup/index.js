@@ -37,7 +37,7 @@ async function sendChatName() {
     let result = await response.json();
     console.log(result, typeof (result));
     if (result.result === "success") {
-        window.location.href = `/list`;
+        window.location.href = `/`;
     } else {
         message.textContent = "This chat name already exists!";
     }
