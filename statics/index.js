@@ -187,6 +187,7 @@ function semicolonCheck(text) {
     }
 }
 
+// 방을 만들기 위해 방 이름을 서버에 전송
 async function sendRoomNameData(roomName) {
     let response = await fetch('/room_generate_process', {
         method: 'POST',
@@ -203,6 +204,7 @@ async function sendRoomNameData(roomName) {
     }
 }
 
+// 친구 목록 가져오기
 async function getFriendsListData() {
     let response = await fetch('/friend_list_process', {
         method: 'POST',
@@ -238,6 +240,7 @@ async function getFriendsListData() {
     }
 }
 
+// 입력이 들어오면 검색
 searchInput.addEventListener('input', () => {
     sendSearchInputData(searchInput.value);
 });
@@ -246,6 +249,7 @@ searchInput.addEventListener('input', () => {
 //     sendSearchInputData(searchInput.value);
 // });
 
+// 검색어를 보내서 결과 데이터를 받아서 화면에 출력
 async function sendSearchInputData(inputText) {
     let response = await fetch('/search_process', {
         method: 'POST',
@@ -295,10 +299,12 @@ async function sendSearchInputData(inputText) {
     }
 }
 
+// 친구요청 받기, 받은 요청으로 리스트 업데이트
 socket.on('sendFriendAdd', (senderData) => {
     getNotiList();
 });
 
+// 친구요청 보내기
 async function sendFriendAdd(receiverData) {
     let response = await fetch('/send_friend_request_process', {
         method: 'POST',
@@ -314,6 +320,7 @@ async function sendFriendAdd(receiverData) {
     }
 }
 
+// 알림 목록 가져오기
 async function getNotiList() {
     let response = await fetch('/get_friend_request_list_process', {
         method: 'POST',
@@ -331,6 +338,7 @@ async function getNotiList() {
 
 }
 
+// 알림에 뜨는 친구요청의 템플릿
 function friendRequestNotiTemplate(senderEmail) {
     const fragment = document.createDocumentFragment();
 
