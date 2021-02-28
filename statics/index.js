@@ -1,3 +1,5 @@
+const socket = io();
+
 const roomList = document.querySelector('#roomList');
 const friendList = document.querySelector('#friendList');
 const generateRoomButton = document.querySelector('#generateRoomButton');
@@ -8,6 +10,7 @@ const alertMessage = document.querySelector('#alertMessage');
 const searchInput = document.querySelector('#searchInput');
 const searchSummit = document.querySelector('#searchSummit');
 const searchResult = document.querySelector('#searchResult');
+const notiList = document.querySelector('#notiList');
 
 const navs = document.getElementsByClassName('navs');
 const taps = document.getElementsByClassName('taps');
@@ -16,6 +19,7 @@ getUserData();
 tap();
 getFriendsListData();
 getRoomIdListData();
+getNotiList();
 
 function tap() {
     for (let i = 0; i < navs.length; i++) {
@@ -69,6 +73,8 @@ async function getUserData() {
         taps[2].style.display = 'none';
         taps[3].style.display = 'none';
     }
+
+    socket.emit("signIn", result);
 }
 
 async function sendTapDataToSession(i) {
@@ -279,12 +285,73 @@ async function sendSearchInputData(inputText) {
             sendAddFriendTag.id = 'sendAddFriend';
             sendAddFriendTag.textContent = '친구 요청';
             sendAddFriendTag.addEventListener('click' || 'touchstart', () => {
-                sendAddFriendTag.style.display = 'none';
-                // 친구추가 알림 보내기
+                sendFriendAdd(result[i]);
+                sendAddFriendTag.textContent = '요청됨';
             });
             profilesTag.appendChild(sendAddFriendTag);
 
             searchResult.appendChild(fragment);
         }
     }
+}
+
+socket.on('sendFriendAdd', (senderData) => {
+    getNotiList();
+});
+
+async function sendFriendAdd(receiverData) {
+    let response = await fetch('/send_friend_request_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ receiverData: receiverData })
+    });
+
+    let result = await response.json();
+    if (result.result === "success") {
+        socket.emit('sendFriendAdd', receiverData);   
+    }
+}
+
+async function getNotiList() {
+    let response = await fetch('/get_friend_request_list_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    });
+
+    let result = await response.json();
+    console.log(result);
+
+    for (let i = 0; i < result.length; i++) {
+        friendRequestNotiTemplate(result[i]);
+    }
+
+}
+
+function friendRequestNotiTemplate(senderEmail) {
+    const fragment = document.createDocumentFragment();
+
+    const friendRequest = document.createElement('div');
+    const friendRequestText = document.createElement('div');
+    const friendRequestOk = document.createElement('button');
+    const friendRequestNo = document.createElement('button');
+
+    friendRequest.id = 'friendRequest';
+    friendRequestText.id = 'friendRequestText';
+    friendRequestOk.id = 'friendRequestOk';
+    friendRequestNo.id = 'friendRequestNo';
+
+    friendRequestText.textContent = `${senderEmail}님의 친구 요청!`;
+    friendRequestOk.textContent = '수락';
+    friendRequestNo.textContent = '거절';
+
+    fragment.appendChild(friendRequest);
+    fragment.appendChild(friendRequestText);
+    fragment.appendChild(friendRequestOk);
+    fragment.appendChild(friendRequestNo);
+
+    notiList.appendChild(fragment);
 }

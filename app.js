@@ -281,7 +281,54 @@ function serverProcess() {
                 if (error) {
                     console.log(error);
                 } else {
+                    for (let i = 0; i < rows.length; i++) {
+                        if (rows[i].chat_name === userData.chatName) {
+                            rows.splice(i, 1);
+                        }
+                    }
                     response.json(rows);
+                }
+            });
+    });
+
+    app.post('/send_friend_request_process', (request, response) => {
+        const userData = request.session.passport.user;
+        const receiverData = request.body.receiverData;
+        console.log('userData: ', userData);
+        console.log('receiverData: ', receiverData);
+
+        connection.query(`SELECT friend_request FROM user_list WHERE email = '${receiverData.email}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    let receiverFriendRequest = rows[0].friend_request;
+                    if (!receiverFriendRequest.includes(userData.googleEmail)) {
+                        connection.query(
+                            `UPDATE user_list SET friend_request = JSON_ARRAY_INSERT(friend_request, '$[0]', '${userData.googleEmail}') WHERE email = '${receiverData.email}'`,
+                            (error, rows, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    response.json({ result: "success" });
+                                }
+                            });
+                    } else {
+                        response.json({ result: "already" });
+                    }
+                }
+            });
+    });
+
+    app.post('/get_friend_request_list_process', (request, response) => {
+        const userData = request.session.passport.user;
+
+        connection.query(`SELECT friend_request FROM user_list WHERE email = '${userData.googleEmail}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    response.json(rows[0].friend_request);
                 }
             });
     });
@@ -378,8 +425,8 @@ function sessionCheckAndSignIn() {
                                 response.json({ "result": "failed" })
                             } else {
                                 connection.query(
-                                    `INSERT INTO user_list(name, chat_name, email, google_id, room_list, friend_list) VALUES(?,?,?,?,?,?)`,
-                                    [userData.userName, request.body.chatName, userData.googleEmail, userData.googleID, "[]", "[]"],
+                                    `INSERT INTO user_list(name, chat_name, email, google_id, room_list, friend_list, friend_request) VALUES(?,?,?,?,?,?,?)`,
+                                    [userData.userName, request.body.chatName, userData.googleEmail, userData.googleID, "[]", "[]", "[]"],
                                     (error, rows, fields) => {
                                         if (error) {
                                             throw error;
@@ -396,7 +443,14 @@ function sessionCheckAndSignIn() {
 }
 
 function socketIO() {
+    let signInID = {};
+
     io.on('connection', (socket) => {
+        socket.on("signIn", (data) => {
+            signInID[data.googleEmail] = socket.id;
+            socket.signInData = data;
+            console.log("동시 접속자: ", Object.keys(signInID).length);
+        });
 
         socket.on('joinRoom', (room, name) => {
             socket.join(room, () => {
@@ -414,6 +468,18 @@ function socketIO() {
             socket.broadcast.to(roomNumber).emit('chat message', chatName, message);
         });
 
+        socket.on('sendFriendAdd', (receiverData) => {
+            io.to(signInID[receiverData.email]).emit('sendFriendAdd', socket.signInData);
+        });
+
+        socket.on('disconnect', (data) => {
+            for (const key in signInID) {
+                if (signInID[key] === socket.id) {
+                    delete signInID[key];
+                }
+            }
+            console.log("동시 접속자: ", Object.keys(signInID).length);
+        });
     });
 }
 
