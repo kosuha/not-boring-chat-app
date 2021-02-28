@@ -15,11 +15,15 @@ const notiList = document.querySelector('#notiList');
 const navs = document.getElementsByClassName('navs');
 const taps = document.getElementsByClassName('taps');
 
+let myEmail = '';
+let friendsListByChatName = [];
+
 getUserData();
 tap();
 getFriendsListData();
 getRoomIdListData();
 getNotiList();
+
 
 function tap() {
     for (let i = 0; i < navs.length; i++) {
@@ -46,6 +50,9 @@ async function getUserData() {
     });
 
     let result = await response.json();
+
+    myEmail = result.googleEmail;
+
     // console.log('client: ', result.tap);
     if (result.tap === '0') {
         taps[0].style.display = 'inline';
@@ -215,6 +222,8 @@ async function getFriendsListData() {
 
     let result = await response.json();
 
+    friendsListByChatName = result;
+
     while (friendList.firstChild) {
         friendList.removeChild(friendList.firstChild);
     }
@@ -263,7 +272,7 @@ async function sendSearchInputData(inputText) {
     });
 
     let result = await response.json();
-    // console.log(result);
+    console.log(myEmail, friendsListByChatName);
 
     while (searchResult.firstChild) {
         searchResult.removeChild(searchResult.firstChild);
@@ -288,14 +297,16 @@ async function sendSearchInputData(inputText) {
             profilesChatNameTag.textContent = result[i].chat_name;
             profilesTag.appendChild(profilesChatNameTag);
 
-            const sendAddFriendTag = document.createElement('div');
-            sendAddFriendTag.id = 'sendAddFriend';
-            sendAddFriendTag.textContent = '친구 요청';
-            sendAddFriendTag.addEventListener('click' || 'touchstart', () => {
-                sendFriendAdd(result[i]);
-                sendAddFriendTag.textContent = '요청됨';
-            });
-            profilesTag.appendChild(sendAddFriendTag);
+            if (!friendsListByChatName.includes(result[i].chat_name) && myEmail !== result[i].email) {
+                const sendAddFriendTag = document.createElement('div');
+                sendAddFriendTag.id = 'sendAddFriend';
+                sendAddFriendTag.textContent = '친구 요청';
+                sendAddFriendTag.addEventListener('click' || 'touchstart', () => {
+                    sendFriendAdd(result[i]);
+                    sendAddFriendTag.textContent = '요청됨';
+                });
+                profilesTag.appendChild(sendAddFriendTag);
+            }
 
             searchResult.appendChild(fragment);
         }
@@ -319,7 +330,7 @@ async function sendFriendAdd(receiverData) {
 
     let result = await response.json();
     if (result.result === "success") {
-        socket.emit('sendFriendAdd', receiverData);   
+        socket.emit('sendFriendAdd', receiverData);
     }
 }
 
@@ -359,14 +370,15 @@ function friendRequestNotiTemplate(senderEmail, senderChatName) {
     friendRequestOk.textContent = '수락';
     friendRequestNo.textContent = '거절';
 
+    friendRequest.appendChild(friendRequestText);
+    friendRequest.appendChild(friendRequestOk);
+    friendRequest.appendChild(friendRequestNo);
+    fragment.appendChild(friendRequest);
+
     friendRequestOk.addEventListener('click' || 'touchstart', () => {
         addFriend(senderEmail);
+        friendRequest.remove();
     });
-
-    fragment.appendChild(friendRequest);
-    fragment.appendChild(friendRequestText);
-    fragment.appendChild(friendRequestOk);
-    fragment.appendChild(friendRequestNo);
 
     notiList.appendChild(fragment);
 }
@@ -382,7 +394,7 @@ async function friendRequestNoti(senderEmail) {
     });
 
     let senderChatName = await response.json();
-    
+
     friendRequestNotiTemplate(senderEmail, senderChatName);
 }
 

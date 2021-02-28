@@ -285,6 +285,7 @@ function serverProcess() {
                 if (error) {
                     console.log(error);
                 } else {
+                    // 검색 결과에서 나를 제외하기
                     for (let i = 0; i < rows.length; i++) {
                         if (rows[i].chat_name === userData.chatName) {
                             rows.splice(i, 1);
