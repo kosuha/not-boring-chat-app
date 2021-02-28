@@ -380,6 +380,11 @@ function friendRequestNotiTemplate(senderEmail, senderChatName) {
         friendRequest.remove();
     });
 
+    friendRequestNo.addEventListener('click' || 'touchstart', () => {
+        deleteFriendRequest(senderEmail);
+        friendRequest.remove();
+    });
+
     notiList.appendChild(fragment);
 }
 
@@ -400,6 +405,18 @@ async function friendRequestNoti(senderEmail) {
 
 async function addFriend(senderEmail) {
     let response = await fetch('/add_friend_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ senderEmail: senderEmail })
+    });
+
+    getFriendsListData();
+}
+
+async function deleteFriendRequest(senderEmail) {
+    let response = await fetch('/delete_friend_request_process', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'

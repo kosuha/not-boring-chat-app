@@ -405,6 +405,20 @@ function serverProcess() {
                 }
             });
     });
+
+    // 친구 요청 목록에서 제거
+    app.post('/delete_friend_request_process', (request, response) => {
+        const userData = request.session.passport.user;
+        const senderEmail = request.body.senderEmail;
+        // 친구요청 리스트 업데이트
+        connection.query(
+            `UPDATE user_list SET friend_request = JSON_REMOVE(friend_request, JSON_UNQUOTE(JSON_SEARCH(friend_request, 'one', '${senderEmail}'))) WHERE email = '${userData.googleEmail}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                }
+            });
+    });
 }
 
 function sessionCheckAndSignIn() {
