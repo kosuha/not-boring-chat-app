@@ -1,3 +1,13 @@
+/*
+TODO:
+    방에 속한 멤버가 없으면 방 지우기
+    방 탈퇴 기능
+    
+    프로필 보기
+    친구 삭제 기능
+*/
+
+
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
