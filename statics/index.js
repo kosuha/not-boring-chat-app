@@ -214,7 +214,10 @@ async function getFriendsListData() {
     });
 
     let result = await response.json();
-    // console.log(result);
+
+    while (friendList.firstChild) {
+        friendList.removeChild(friendList.firstChild);
+    }
 
     if (result.length > 0) {
         for (let i = 0; i < result.length; i++) {
@@ -333,13 +336,13 @@ async function getNotiList() {
     console.log(result);
 
     for (let i = 0; i < result.length; i++) {
-        friendRequestNotiTemplate(result[i]);
+        friendRequestNoti(result[i]); // 알림 목록의 이메일로 챗네임을 가져옴
     }
 
 }
 
 // 알림에 뜨는 친구요청의 템플릿
-function friendRequestNotiTemplate(senderEmail) {
+function friendRequestNotiTemplate(senderEmail, senderChatName) {
     const fragment = document.createDocumentFragment();
 
     const friendRequest = document.createElement('div');
@@ -352,9 +355,13 @@ function friendRequestNotiTemplate(senderEmail) {
     friendRequestOk.id = 'friendRequestOk';
     friendRequestNo.id = 'friendRequestNo';
 
-    friendRequestText.textContent = `${senderEmail}님의 친구 요청!`;
+    friendRequestText.textContent = `${senderChatName}님의 친구 요청!`;
     friendRequestOk.textContent = '수락';
     friendRequestNo.textContent = '거절';
+
+    friendRequestOk.addEventListener('click' || 'touchstart', () => {
+        addFriend(senderEmail);
+    });
 
     fragment.appendChild(friendRequest);
     fragment.appendChild(friendRequestText);
@@ -362,4 +369,31 @@ function friendRequestNotiTemplate(senderEmail) {
     fragment.appendChild(friendRequestNo);
 
     notiList.appendChild(fragment);
+}
+
+// 알림 목록의 이메일로 챗네임을 가져오고 템플릿으로 화면에 출력
+async function friendRequestNoti(senderEmail) {
+    let response = await fetch('/get_friend_request_list_chat_name_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ email: senderEmail })
+    });
+
+    let senderChatName = await response.json();
+    
+    friendRequestNotiTemplate(senderEmail, senderChatName);
+}
+
+async function addFriend(senderEmail) {
+    let response = await fetch('/add_friend_process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify({ senderEmail: senderEmail })
+    });
+
+    getFriendsListData();
 }

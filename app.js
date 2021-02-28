@@ -185,6 +185,7 @@ function serverProcess() {
             });
     });
 
+    // 방 멤버가 아닌지 확인하고 초대하기
     app.post('/invite_process', (request, response) => {
         const userData = request.session.passport.user;
         const chatName = request.body.chatName;
@@ -219,6 +220,7 @@ function serverProcess() {
             });
     });
 
+    // 방의 멤버리스트를 가져와서 챗네임리스트로 전달
     app.post('/get_member_list_process', (request, response) => {
         const userData = request.session.passport.user;
 
@@ -246,6 +248,7 @@ function serverProcess() {
             });
     });
 
+    // 친구 목록을 가져와서 챗네임으로 전달
     app.post('/friend_list_process', (request, response) => {
         const userData = request.session.passport.user;
 
@@ -273,6 +276,7 @@ function serverProcess() {
             });
     });
 
+    // 검색 기능
     app.post('/search_process', (request, response) => {
         const userData = request.session.passport.user;
         const input = request.body.inputText
@@ -291,6 +295,7 @@ function serverProcess() {
             });
     });
 
+    // 친구 추가 메시지가 있는지 확인하고 없으면 친구 추가 보내기
     app.post('/send_friend_request_process', (request, response) => {
         const userData = request.session.passport.user;
         const receiverData = request.body.receiverData;
@@ -320,6 +325,7 @@ function serverProcess() {
             });
     });
 
+    // 친구 추가 메시지 목록을 가져오기 (알림에 출력)
     app.post('/get_friend_request_list_process', (request, response) => {
         const userData = request.session.passport.user;
 
@@ -329,6 +335,72 @@ function serverProcess() {
                     console.log(error);
                 } else {
                     response.json(rows[0].friend_request);
+                }
+            });
+    });
+
+    // 친구요청을 보낸 사람의 이메일을 받아서 챗네임으로 반환
+    app.post('/get_friend_request_list_chat_name_process', (request, response) => {
+        const userData = request.session.passport.user;
+        const friend_request_email = request.body.email;
+        connection.query(`SELECT chat_name FROM user_list WHERE email = '${friend_request_email}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    response.json(rows[0].chat_name);
+                }
+            });
+    });
+
+    app.post('/add_friend_process', (request, response) => {
+        const userData = request.session.passport.user;
+        const senderEmail = request.body.senderEmail;
+
+        // 내 목록에 추가
+        connection.query(`SELECT friend_list FROM user_list WHERE email = '${userData.googleEmail}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    let friend_list = rows[0].friend_list;
+                    if (!friend_list.includes(senderEmail)) {
+                        connection.query(
+                            `UPDATE user_list SET friend_list = JSON_ARRAY_INSERT(friend_list, '$[0]', '${senderEmail}') WHERE email = '${userData.googleEmail}'`,
+                            (error, rows, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    // 친구요청 리스트 업데이트
+                                    connection.query(
+                                        `UPDATE user_list SET friend_request = JSON_REMOVE(friend_request, JSON_UNQUOTE(JSON_SEARCH(friend_request, 'one', '${senderEmail}'))) WHERE email = '${userData.googleEmail}'`,
+                                        (error, rows, fields) => {
+                                            if (error) {
+                                                console.log(error);
+                                            }
+                                        });
+                                }
+                            });
+                    }
+                }
+            });
+
+        // 상대 목록에 추가
+        connection.query(`SELECT friend_list FROM user_list WHERE email = '${senderEmail}'`,
+            (error, rows, fields) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    let friend_list = rows[0].friend_list;
+                    if (!friend_list.includes(userData.googleEmail)) {
+                        connection.query(
+                            `UPDATE user_list SET friend_list = JSON_ARRAY_INSERT(friend_list, '$[0]', '${userData.googleEmail}') WHERE email = '${senderEmail}'`,
+                            (error, rows, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                }
+                            });
+                    }
                 }
             });
     });
